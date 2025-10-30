@@ -129,8 +129,21 @@ public class Patient extends Thread {
 	 * Advances the Patient's protocol. The Patient is moved to the new Area, the
 	 * movement is animated by the GUI and the index is increased by one.
 	 */
-	private void advanceProtocol() {
+	private void advanceProtocol() { //NO ESPERAMOS AQUI, ya espera EmergencyRoomGUI
 		// TODO
+		if (indexProtocol < protocol.size()){
+			//creo el movimiento del paciente, el que le toca en este protocolo 
+			Transfer t = protocol.get(indexProtocol);
+			try{
+				EmergencyRoomGUI.getInstance().animateTransfer(this,t); //this es el paciente q mueves, animateTransfer(Patient,Time)
+			} catch(IllegalStateException e) { //si no se ha ploteado nada , niguna interfaz grafica yet
+				System.out.println("EmergencyRoomGUI not yet initialized. Call initialize() first.");
+			}
+			setLocation(t.getTo()); // le pongo al paciente donde se encuentra al final del mvto, busco en su
+									// transfer, su mvto ya definido, cual es el destino
+			indexProtocol++;
+		}
+		
 	}
 
 	/**
@@ -140,6 +153,13 @@ public class Patient extends Thread {
 	 */
 	private void attendedAtLocation() {
 		// TODO
+		 int time = location.getTime(); // tiempo que tarda ese área (location) en liberarse, tiempi que tardan en atenderte
+		    try {
+		        Thread.sleep(time); // el pac espera ese tiempo justo, esta siendo atendido, el puntito no se mueve!
+		    } catch (InterruptedException e) { //catchea la excepción de sleep
+		        Thread.currentThread().interrupt();
+		        System.err.println("Se ha interrumpido la tarea");
+		    }
 	}
 
 	/**
@@ -150,6 +170,17 @@ public class Patient extends Thread {
 	@Override
 	public void run() {
 		// TODO
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 	}
 
 }

@@ -1,6 +1,7 @@
 package es.upm.dit.aled.lab4.genome;
 
 import java.io.DataInput;
+
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -11,7 +12,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
+import java.util.ArrayList;
 /**
  * Reads a FASTA file containing genetic information and allows for the search
  * of specific patterns within these data. The information is stored as an array
@@ -116,7 +117,23 @@ public class FASTAReaderThreads {
 	 */
 	public List<Integer> search(byte[] pattern) {
 		// TODO
-		return null;
+		List<Integer> resultados = new ArrayList<>();
+		int valid = this.getValidBytes();
+		int cores = Runtime.getRuntime().availableProcessors();
+		ExecutorService executor = Executors.newFixedThreadPool(cores);
+		List<Future<Integer>> resultadoFuturo = new ArrayList<>();
+		
+		int lo;
+		int hi;
+		
+		
+		FASTASearchCallable task = new FASTASearchCallable(this, lo, hi, pattern);
+		resultadoFuturo.add(executor.submit(task));
+		executor.shutdown();
+		
+		
+   
+		return resultados;
 	}
 
 	public static void main(String[] args) {

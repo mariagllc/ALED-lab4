@@ -136,8 +136,9 @@ public class Patient extends Thread {
 			Transfer t = protocol.get(indexProtocol);
 			try{
 				EmergencyRoomGUI.getInstance().animateTransfer(this,t); //this es el paciente q mueves, animateTransfer(Patient,Time)
-			} catch(IllegalStateException e) { //si no se ha ploteado nada , niguna interfaz grafica yet
-				System.out.println("EmergencyRoomGUI not yet initialized. Call initialize() first.");
+				System.out.println("Paciente " + number + ": se ha trasladado a " + location.getName());
+			} catch(IllegalStateException e) { //si no se ha ploteado nada, niguna interfaz grafica yet
+				System.out.println("EmergencyRoomGUI not yet initialized.");
 			}
 			setLocation(t.getTo()); // le pongo al paciente donde se encuentra al final del mvto, busco en su
 									// transfer, su mvto ya definido, cual es el destino
@@ -156,9 +157,10 @@ public class Patient extends Thread {
 		 int time = location.getTime(); // tiempo que tarda ese área (location) en liberarse, tiempi que tardan en atenderte
 		    try {
 		        Thread.sleep(time); // el pac espera ese tiempo justo, esta siendo atendido, el puntito no se mueve!
+		        System.out.println("Paciente " + number + ": ha sido atendido en " + location.getName());
 		    } catch (InterruptedException e) { //catchea la excepción de sleep
 		        Thread.currentThread().interrupt();
-		        System.err.println("Se ha interrumpido la tarea");
+		        System.out.println("Se ha interrumpido la tarea");
 		    }
 	}
 
@@ -170,17 +172,17 @@ public class Patient extends Thread {
 	@Override
 	public void run() {
 		// TODO
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
+	    while (indexProtocol < protocol.size()) { // mientras no hayamos llegado al final del protocolo
+	        attendedAtLocation();  // ser atendido en la ubicación actual
+	        advanceProtocol(); // avanzar al siguiente paso en su protocolo
+	    }
+	    attendedAtLocation();  // ya se ha llegado al último paso del protocolo, atender una última vez en la ubicación final
+	    try {
+	        EmergencyRoomGUI.getInstance().removePatient(this); //el paciente deberá pedir a EmergencyRoomGUI que lo elimine
+	        System.out.println("Paciente " + number + ": ha terminado su protocolo y ha sido dado de alta");
+	    } catch (IllegalStateException e) {
+	        System.out.println("GUI not initialized when removing patient " + number);
+	    }
 	}
 
 }

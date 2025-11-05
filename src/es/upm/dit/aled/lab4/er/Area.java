@@ -51,7 +51,7 @@ public class Area {
 	 * 
 	 * @return The time.
 	 */
-	public int getTime() {
+	public int getTime() { 
 		return time;
 	}
 

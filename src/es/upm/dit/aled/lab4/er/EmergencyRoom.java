@@ -124,6 +124,7 @@ public class EmergencyRoom {
 	 */
 	public void admit(Patient patient) {
 		// TODO
+		patient.start();
 	}
 
 	/**
@@ -133,6 +134,12 @@ public class EmergencyRoom {
 	 */
 	public void waitForDischarge(Patient patient) {
 		// TODO
+		try {
+			patient.join();
+		} catch (InterruptedException e){
+			 Thread.currentThread().interrupt();
+		     System.out.println("Interrupted while waiting for patient " + patient.getNumber());
+		}
 	}
 
 }

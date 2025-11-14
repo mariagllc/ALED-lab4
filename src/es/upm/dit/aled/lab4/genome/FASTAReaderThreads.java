@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -115,27 +116,42 @@ public class FASTAReaderThreads {
 	 * @return All the positions of the first character of every occurrence of the
 	 *         pattern in the data.
 	 */
-	public List<Integer> search(byte[] pattern) {
+	public List<Integer> search(byte[] pattern) { // búsqueda LINEAL!! uno a uno
 		// TODO
 		List<Integer> resultados = new ArrayList<>();
-		int valid = this.getValidBytes();
-		int cores = Runtime.getRuntime().availableProcessors();
-		ExecutorService executor = Executors.newFixedThreadPool(cores);
-		List<Future<Integer>> resultadoFuturo = new ArrayList<>();
-		
-		int lo;
-		int hi;
-		
-		
-		FASTASearchCallable task = new FASTASearchCallable(this, lo, hi, pattern);
-		resultadoFuturo.add(executor.submit(task));
+		int cores = Runtime.getRuntime().availableProcessors(); // obtengo num procesadores del mac
+		System.out.println("Using " + cores + " cores.");
+		ExecutorService executor = Executors.newFixedThreadPool(cores); // tantas hebras como procesadores
+		List<Future<List<Integer>>> resultadoFuturo = new ArrayList<>(); // para referirme a los resultados futuros. Tb
+																			// vale: Future<List<Integer>>[] futures =
+																			// new Future[cores];
+		int tamanoSegmento = validBytes / cores;
+
+		for (int i = 0; i < cores; i++) {
+			int lo = i * tamanoSegmento; //para dividir todo el genoma (válido) en tantos segmentos como cores tengo
+			int hi;
+			if (i == cores - 1) { // pq cores empieza a contar desde 1
+				hi = validBytes; //esto es lo último que ordenará, el contenido completo
+			} else {
+				hi = (i + 1) * tamanoSegmento; // es+1 porq los intervalos son [)!!!!
+			}
+			FASTASearchCallable tarea = new FASTASearchCallable(this, lo, hi, pattern);
+			resultadoFuturo.add(executor.submit(tarea));
+		}
+
+		for (Future<List<Integer>> r : resultadoFuturo) {
+			try {
+				List<Integer> resultadoParcial = r.get();
+				resultados.addAll(resultadoParcial);
+			} catch (InterruptedException | ExecutionException e) {
+			}
+		}
+
 		executor.shutdown();
-		
-		
-   
 		return resultados;
 	}
 
+	
 	public static void main(String[] args) {
 		long t1 = System.nanoTime();
 		FASTAReaderThreads reader = new FASTAReaderThreads(args[0]);

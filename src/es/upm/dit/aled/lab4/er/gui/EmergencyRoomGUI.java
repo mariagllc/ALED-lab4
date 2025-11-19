@@ -22,7 +22,8 @@ import es.upm.dit.aled.lab4.er.Transfer;
  * 
  * @author rgarciacarmona
  */
-public class EmergencyRoomGUI {
+public class EmergencyRoomGUI { // Es un singleton: una clase que solo permite crear un único objeto, porque no
+								// hay más de una sala de emergencia e un hospital, por eso usamos getInstance
 
 	private JFrame frame;
 	private DrawingPanel drawingPanel;
